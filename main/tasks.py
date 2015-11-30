@@ -1,9 +1,16 @@
 import logging
 import subprocess
+import django_rq
 from .models import Host
 from .models import Ping
 
 
+def check_all_hosts():
+    hosts = Host.objects.all()
+    for h in hosts:
+        check_host.delay(h.pk)
+
+@django_rq.job
 def check_host(host_id):
     logging.basicConfig()
     host = Host.objects.get(pk=host_id)
